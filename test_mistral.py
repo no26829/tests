@@ -1,17 +1,17 @@
-# test different LLMs: Mistral
+ # test different LLMs: Mistral
 # Embedding pair: GloveEmbeddings
-
 from langchain import Mistral, LLMChain
 from langchain.embeddings import GloveEmbeddings
 import os
 import logging
+import time
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Mistral API Key placeholder ('MISTRAL_API_KEY')
-api_key = os.getenv('MISTRAL_API_KEY')
+api_key = os.getenv('PlaceHolder')
 if not api_key:
     raise ValueError("API key not found. Please set the MISTRAL_API_KEY environment variable.")
 
@@ -23,12 +23,16 @@ llm_chain = LLMChain(llm=Mistral(api_key=api_key), embedding_model=embedding_mod
 
 def get_menu_from_restaurant_mistral(name, address):
     try:
+        start_time = time.time()  # Record the start time
         query = f"Get the menu for {name} located at {address}"
         result = llm_chain(query)
-        return result
+        end_time = time.time()  # Record the end time
+        time_taken = end_time - start_time  # Calculate the elapsed time
+        logger.info(f"Time taken to retrieve menu for {name} at {address}: {time_taken:.2f} seconds")
+        return result, time_taken  # Return the result and the time taken
     except Exception as e:
         logger.error(f"Error retrieving menu for {name} at {address}: {e}")
-        return []
+        return [], 0
 
 def find_vegetarian_options(menu):
     vegetarian_keywords = ['vegetarian', 'vegan', 'plant-based', 'meat-free']
@@ -38,23 +42,31 @@ def find_vegetarian_options(menu):
 def generate_summary(menu, vegetarian_options):
     prompt = f"The menu includes the following items: {menu}. The vegetarian options are: {vegetarian_options}. Please provide a summary."
     try:
+        start_time = time.time()  # Record the start time
         summary = llm_chain(prompt)
-        return summary
+        end_time = time.time()  # Record the end time
+        time_taken = end_time - start_time  # Calculate the elapsed time
+        logger.info(f"Time taken to generate summary: {time_taken:.2f} seconds")
+        return summary, time_taken  # Return the summary and the time taken
     except Exception as e:
         logger.error(f"Error generating summary: {e}")
-        return "Error in generating summary."
+        return "Error in generating summary.", 0
 
 def workflow(name, address):
-    menu = get_menu_from_restaurant_mistral(name, address)
+    menu, menu_time = get_menu_from_restaurant_mistral(name, address)
     vegetarian_options = find_vegetarian_options(menu)
-    summary = generate_summary(menu, vegetarian_options)
+    summary, summary_time = generate_summary(menu, vegetarian_options)
     
     return {
         "restaurant": name,
         "address": address,
         "menu": menu,
         "vegetarian_options": vegetarian_options,
-        "summary": summary
+        "summary": summary,
+        "time_taken": {
+            "menu_retrieval": menu_time,
+            "summary_generation": summary_time
+        }
     }
 
 test_data = [
@@ -79,6 +91,7 @@ def test_workflow():
             print("Menu:", result['menu'])
             print("Vegetarian Options:", result['vegetarian_options'])
             print("Summary:", result['summary'])
+            print("Time Taken:", result['time_taken'])
             print("-" * 40)
         except Exception as e:
             logger.error(f"Error processing {name} at {address}: {e}")
