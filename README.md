@@ -57,16 +57,11 @@ General Health Advice: Diet, exercise, and mental wellness.
 Symptom Checker: Identifying potential health issues.
 Holistic Lifestyle Tips: Recommendations for stress management, sleep, etc.
 Preventive Health Measures: Tailored advice on preventive actions.
+
 Example Scenario
 For diet-related queries, models are prompted with:
 
 "What are healthy snack options for someone looking to lose weight and gain muscle?"
 
-Metrics ensure recommendations align with Almma Health’s mission.
 
-Contributing
-Contributions are welcome! Please review our contributing guidelines before submitting a pull request.
-
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
 
